@@ -1,64 +1,69 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InventoryManager : MonoBehaviour
+namespace Inventory
 {
-    public static InventoryManager Instance { get; set; }
-
-    [SerializeField] GameObject inventoryScreen;
-    [SerializeField] KeyCode trigger = KeyCode.E;
-
-    private bool _isOpen;
-
-    private void Awake()
+    public partial class InventoryManager : MonoBehaviour
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            Instance = this;
-        }
-    }
+        public static InventoryManager Instance { get; set; }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        CloseInventory();
-    }
+        [SerializeField] GameObject inventoryScreen;
+        [SerializeField] GameObject slots;
+        [SerializeField] KeyCode trigger = KeyCode.E;
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(trigger))
+        private bool _isOpen;
+        
+        private void Awake()
         {
-            if (_isOpen)
+            if (Instance != null && Instance != this)
             {
-                CloseInventory();
+                Destroy(gameObject);
             }
             else
             {
-                OpenInventory();
+                Instance = this;
             }
         }
-        else if (Input.GetKeyDown(KeyCode.Escape) && _isOpen)
+
+        // Start is called before the first frame update
+        void Start()
         {
             CloseInventory();
+            
+            Items = new InvItem[slots.transform.childCount];
+            InitializeResourceItems();
         }
-    }
 
-    void OpenInventory()
-    {
-        inventoryScreen.SetActive(true);
-        _isOpen = true;
-    }
-    
-    void CloseInventory()
-    {
-        inventoryScreen.SetActive(false);
-        _isOpen = false;
+        // Update is called once per frame
+        void Update()
+        {
+            if (Input.GetKeyDown(trigger))
+            {
+                if (_isOpen)
+                {
+                    CloseInventory();
+                }
+                else
+                {
+                    OpenInventory();
+                }
+            }
+            else if (Input.GetKeyDown(KeyCode.Escape) && _isOpen)
+            {
+                CloseInventory();
+            }
+        }
+
+        void OpenInventory()
+        {
+            inventoryScreen.SetActive(true);
+            _isOpen = true;
+        }
+
+        void CloseInventory()
+        {
+            inventoryScreen.SetActive(false);
+            _isOpen = false;
+        }
     }
 }

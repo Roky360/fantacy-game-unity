@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Inventory;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -17,6 +18,8 @@ public class InventoryResourceSlot : MonoBehaviour, IDropHandler
             return null;
         }
     }
+
+    public InvItemType itemType;
 
     public void OnDrop(PointerEventData eventData)
     {
