@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using Inventory;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class DragNDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public static GameObject DraggedItem;
+    public static int StartSlotIdx;
 
     private RectTransform _rectTransform;
     private CanvasGroup _canvasGroup;
@@ -22,12 +24,17 @@ public class DragNDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
     public void OnBeginDrag(PointerEventData eventData)
     {
         _canvasGroup.alpha = .6f;
-        //So the ray cast will ignore the item itself.
+        // ray cast will ignore the item itself.
         _canvasGroup.blocksRaycasts = false;
         _startPosition = transform.position;
         _startParent = transform.parent;
-        transform.SetParent(transform.root);
+
+        // currently dragged item
         DraggedItem = gameObject;
+        // set previous slot
+        StartSlotIdx = GetComponentInParent<InventoryResourceSlot>().idx;
+
+        transform.SetParent(transform.root);
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -38,7 +45,9 @@ public class DragNDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
     public void OnEndDrag(PointerEventData eventData)
     {
         DraggedItem = null;
+        StartSlotIdx = -1;
 
+        // if the item was not dropped on a slot - return it to its original slot
         if (transform.parent == _startParent || transform.parent == transform.root)
         {
             transform.position = _startPosition;

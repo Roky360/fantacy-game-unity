@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 6875406242197607020}
   m_Layer: 5
   m_Name: empty_bottle-INV
-  m_TagString: Untagged
+  m_TagString: Inventory Item
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -1,11 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
 using Inventory;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class InventoryResourceSlot : MonoBehaviour, IDropHandler
 {
+    /// <summary>
+    /// Slot index in ResourceSlots array in InventoryManager
+    /// </summary>
+    public int idx;
+
+    public ItemType itemType;
+
+    [SerializeField]
     public GameObject Item
     {
         get
@@ -19,14 +25,31 @@ public class InventoryResourceSlot : MonoBehaviour, IDropHandler
         }
     }
 
-    public InvItemType itemType;
+    private void SetChild(GameObject child)
+    {
+        child.transform.SetParent(transform);
+        child.transform.localPosition = new Vector2(0, 0);
+    }
+
+    public void ChangeContents(GameObject invItemObj)
+    {
+        GameObject child = Instantiate(invItemObj);
+        SetChild(child);
+    }
+
+    public void EmptySlot()
+    {
+        GameObject item = Item;
+        if (item)
+            Destroy(item);
+    }
 
     public void OnDrop(PointerEventData eventData)
     {
         if (!Item)
         {
-            DragNDrop.DraggedItem.transform.SetParent(transform);
-            DragNDrop.DraggedItem.transform.localPosition = new Vector2(0, 0);
+            SetChild(DragNDrop.DraggedItem);
+            InventoryManager.Instance.MoveItem(DragNDrop.StartSlotIdx, idx);
         }
     }
 }

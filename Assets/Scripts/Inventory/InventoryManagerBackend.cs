@@ -5,62 +5,123 @@ namespace Inventory
 {
     public partial class InventoryManager
     {
-        public InvItem[] Items;
-        public bool isFull;
+        /// <summary>
+        /// ALL THE FUCKING GAME ITEMS!!
+        /// </summary>
+        public List<Item> GameItems;
 
-        void InitializeResourceItems()
+        public Dictionary<ItemType, Item> ItemTypeToItemMap { get; } = new();
+
+        /// <summary>
+        /// Inventory resource slots contents
+        /// </summary>
+        public ResourceSlot[] ResourceSlots;
+
+        public bool IsFull => FindEmptySlot() == -1;
+
+        void InitializeItemsMap()
         {
-            for (int i = 0; i < slots.transform.childCount; i++)
+            foreach (Item item in GameItems)
+            {
+                ItemTypeToItemMap.Add(item.Type, item);
+            }
+        }
+
+        void InitializeResourceSlots()
+        {
+            for (int i = 0; i < ResourceSlots.Length; i++)
             {
                 // get the current slot as a game object
-                GameObject child = slots.transform.GetChild(i).gameObject;
+                GameObject slotObj = slots.transform.GetChild(i).gameObject;
+                InventoryResourceSlot resourceSlot = slotObj.GetComponent<InventoryResourceSlot>();
 
-                InventoryResourceSlot slot = child.GetComponent<InventoryResourceSlot>();
-                if (slot)
-                {
-                    Items[i] = new InvItem(slot.itemType, child);
-                }
+                ResourceSlots[i] = new ResourceSlot(ItemType.None, slotObj, isOccupied: false);
+                resourceSlot.idx = i;
+                resourceSlot.itemType = ItemType.None;
+                resourceSlot.EmptySlot();
             }
+        }
+
+        private void FillSlot(int slotIdx, ItemType type, bool updateUI = true)
+        {
+            ResourceSlot slot = ResourceSlots[slotIdx];
+
+            slot.Type = type;
+            slot.IsOccupied = true;
+            if (updateUI)
+                slot.UpdateSlotContents();
+        }
+
+        /// <summary>
+        /// Empties a slot from its contents.
+        /// </summary>
+        /// <param name="slotIdx"></param>
+        /// <returns>The type of the item that was in the slot.</returns>
+        private ItemType EmptySlot(int slotIdx)
+        {
+            ResourceSlot slot = ResourceSlots[slotIdx];
+            ItemType type = slot.Type;
+
+            slot.IsOccupied = false;
+            slot.Type = ItemType.None;
+            slot.EmptySlotContents();
+
+            return type;
         }
 
         private int FindEmptySlot()
         {
-            for (int i = 0; i < Items.Length; i++)
+            for (int i = 0; i < ResourceSlots.Length; i++)
             {
-                if (Items[i] == null)
+                if (!ResourceSlots[i].IsOccupied)
                     return i;
             }
 
             return -1;
         }
 
-        public bool AddToInventory(InvItem item)
+        public bool AddToInventory(ItemType itemType)
         {
             int slotIdx = FindEmptySlot();
             if (slotIdx == -1)
             {
                 // TODO: inform the user that the inventory is full
-                
+                Debug.Log("Inventory full!");
+
                 return false;
             }
             else
             {
-                Items[slotIdx] = item;
-                
+                FillSlot(slotIdx, itemType);
+
                 return true;
             }
         }
 
-        public GameObject RemoveFromInventory(int idx)
+        public void RemoveFromInventory(int idx, bool dropItem = true)
         {
-            GameObject obj = Items[idx].GameObject;
-            Items[idx] = null;
-            return obj;
+            if (idx < 0 || idx > ResourceSlots.Length)
+                return;
+            
+            ItemType itemType = EmptySlot(idx);
+            if (dropItem)
+            {
+                DropItemNearPlayer(itemType);
+            }
         }
 
-        void DropItemNearPlayer(InvItemType itemType)
+        /// <summary>
+        /// Moves an item from one slot to another.
+        /// </summary>
+        public void MoveItem(int fromSlotIdx, int toSlotIdx)
         {
-            // TODO
+            ItemType itemType = EmptySlot(fromSlotIdx);
+            FillSlot(toSlotIdx, itemType, false);
+        }
+
+        void DropItemNearPlayer(ItemType itemType)
+        {
+            ThrowGroundObject(itemType, player.transform, 100);
         }
     }
 }
