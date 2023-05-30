@@ -1,9 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Inventory;
 using UnityEngine;
-using Random = UnityEngine.Random;
+using Inventory;
+using Item;
 
 public class InteractableObject : MonoBehaviour
 {

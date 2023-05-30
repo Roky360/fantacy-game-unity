@@ -1,4 +1,5 @@
 using Inventory;
+using Item;
 using UnityEngine;
 
 public class GroundItem : MonoBehaviour

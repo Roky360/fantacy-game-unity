@@ -1,13 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
-using Inventory;
+using Item;
+using Slot;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class DragNDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public static GameObject DraggedItem;
-    public static int StartSlotIdx;
+    public static BaseSlot StartSlot;
 
     private RectTransform _rectTransform;
     private CanvasGroup _canvasGroup;
@@ -31,8 +30,7 @@ public class DragNDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 
         // currently dragged item
         DraggedItem = gameObject;
-        // set previous slot
-        StartSlotIdx = GetComponentInParent<InventoryResourceSlot>().idx;
+        StartSlot = GetComponentInParent<BaseSlot>();
 
         transform.SetParent(transform.root);
     }
@@ -45,7 +43,7 @@ public class DragNDrop : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
     public void OnEndDrag(PointerEventData eventData)
     {
         DraggedItem = null;
-        StartSlotIdx = -1;
+        StartSlot = null;
 
         // if the item was not dropped on a slot - return it to its original slot
         if (transform.parent == _startParent || transform.parent == transform.root)
